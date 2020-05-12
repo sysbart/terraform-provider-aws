@@ -164,6 +164,7 @@ func resourceAwsDlmLifecyclePolicy() *schema.Resource {
 									"tags_to_add": {
 										Type:     schema.TypeMap,
 										Optional: true,
+										Elem:     &schema.Schema{Type: schema.TypeString},
 									},
 								},
 							},
@@ -171,6 +172,7 @@ func resourceAwsDlmLifecyclePolicy() *schema.Resource {
 						"target_tags": {
 							Type:     schema.TypeMap,
 							Required: true,
+							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 					},
 				},
@@ -216,6 +218,7 @@ func resourceAwsDlmLifecyclePolicyCreate(d *schema.ResourceData, meta interface{
 
 func resourceAwsDlmLifecyclePolicyRead(d *schema.ResourceData, meta interface{}) error {
 	conn := meta.(*AWSClient).dlmconn
+	ignoreTagsConfig := meta.(*AWSClient).IgnoreTagsConfig
 
 	log.Printf("[INFO] Reading DLM lifecycle policy: %s", d.Id())
 	out, err := conn.GetLifecyclePolicy(&dlm.GetLifecyclePolicyInput{
@@ -240,7 +243,7 @@ func resourceAwsDlmLifecyclePolicyRead(d *schema.ResourceData, meta interface{})
 		return fmt.Errorf("error setting policy details %s", err)
 	}
 
-	if err := d.Set("tags", keyvaluetags.DlmKeyValueTags(out.Policy.Tags).IgnoreAws().Map()); err != nil {
+	if err := d.Set("tags", keyvaluetags.DlmKeyValueTags(out.Policy.Tags).IgnoreAws().IgnoreConfig(ignoreTagsConfig).Map()); err != nil {
 		return fmt.Errorf("error setting tags: %s", err)
 	}
 

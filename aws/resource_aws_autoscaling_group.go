@@ -396,9 +396,12 @@ func resourceAwsAutoscalingGroup() *schema.Resource {
 			"tag": autoscalingTagSchema(),
 
 			"tags": {
-				Type:          schema.TypeList,
-				Optional:      true,
-				Elem:          &schema.Schema{Type: schema.TypeMap},
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeMap,
+					Elem: &schema.Schema{Type: schema.TypeString},
+				},
 				ConflictsWith: []string{"tag"},
 			},
 
@@ -750,6 +753,7 @@ func resourceAwsAutoscalingGroupRead(d *schema.ResourceData, meta interface{}) e
 				tagsList = append(tagsList, t)
 			}
 		}
+		//lintignore:AWSR002
 		d.Set("tags", autoscalingTagDescriptionsToSlice(tagsList))
 	}
 
